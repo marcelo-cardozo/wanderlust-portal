@@ -17,6 +17,13 @@ pub mod myepicproject {
 
         Ok(())
     }
+
+    pub fn add_gift(ctx: Context<AddGift>) -> Result<()> {
+        let base_account = &mut ctx.accounts.base_account;
+        base_account.total_gifts += 1;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -28,6 +35,12 @@ pub struct StartStuffOff<'info> {
     pub user: Signer<'info>,
 
     pub system_program: Program <'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct AddGift<'info> {
+    #[account(mut)]
+    pub base_account: Account<'info, BaseAccount>,
 }
 
 #[account]
