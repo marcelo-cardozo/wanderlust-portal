@@ -11,6 +11,7 @@ const WalletContext = createContext({
   currentAccount: undefined,
   connectWallet: undefined,
   walletAddress: undefined,
+  isConnected: false,
 });
 
 export function WalletContextProvider({ children }) {
@@ -19,6 +20,8 @@ export function WalletContextProvider({ children }) {
     () => currentAccount?.publicKey.toString(),
     [currentAccount]
   );
+  const isConnected = currentAccount != null;
+
   const connectWallet = useCallback(async () => {
     try {
       const { solana } = window;
@@ -51,7 +54,6 @@ export function WalletContextProvider({ children }) {
 
             const response = await solana.connect({ onlyIfTrusted: true });
             setCurrentAccount(response);
-
             console.log(
               "Connected with Public Key:",
               response.publicKey.toString()
@@ -69,8 +71,8 @@ export function WalletContextProvider({ children }) {
   return (
     <WalletContext.Provider
       value={useMemo(
-        () => ({ connectWallet, currentAccount, walletAddress }),
-        [connectWallet, currentAccount, walletAddress]
+        () => ({ connectWallet, currentAccount, walletAddress, isConnected }),
+        [connectWallet, currentAccount, walletAddress, isConnected]
       )}
     >
       {children}
