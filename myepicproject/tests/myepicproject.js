@@ -28,13 +28,19 @@ const main = async () => {
   let account = await program.account.baseAccount.fetch(baseAccount.publicKey);
   console.log("Gif Count: ", account.totalGifts.toString());
 
-  await program.rpc.addGift({
-    accounts: {
-      baseAccount: baseAccount.publicKey,
-    },
-  });
+  await program.rpc.addGift(
+    "https://media0.giphy.com/media/FbPsiH5HTH1Di/giphy.gif",
+    {
+      accounts: {
+        baseAccount: baseAccount.publicKey,
+        user: provider.wallet.publicKey,
+      },
+    }
+  );
+
   account = await program.account.baseAccount.fetch(baseAccount.publicKey);
   console.log("Gif Count: ", account.totalGifts.toString());
+  console.log("Gif List: ", account.gifs);
 };
 
 const runMain = async () => {
