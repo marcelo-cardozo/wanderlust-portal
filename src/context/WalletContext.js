@@ -8,18 +8,29 @@ import {
 } from "react";
 import { getProvider, idl, programID } from "./WalletContext.helper";
 import { Program, web3 } from "@project-serum/anchor";
-const { Keypair } = web3;
 
 const WalletContext = createContext({
   currentAccount: undefined,
   connectWallet: undefined,
   isConnected: false,
-  program: undefined,
   walletAddress: undefined,
 });
 
-// Create a keypair for the account that will hold the GIF data.
-export const baseAccount = Keypair.generate();
+export const baseAccount = (() => {
+  try {
+    const kp = require("../utils/keypair.json");
+    const arr = Object.values(kp._keypair.secretKey);
+    const secret = new Uint8Array(arr);
+    return web3.Keypair.fromSecretKey(secret);
+  } catch (error) {
+    alert("Key pair needs to be created first");
+  }
+})();
+
+export const gifProgram = (() => {
+  const provider = getProvider();
+  return new Program(idl, programID, provider);
+})();
 
 export function WalletContextProvider({ children }) {
   const [currentAccount, setCurrentAccount] = useState();
@@ -75,11 +86,6 @@ export function WalletContextProvider({ children }) {
     return () => window.removeEventListener("load", checkIfWalletIsConnected);
   }, []);
 
-  const program = useMemo(() => {
-    const provider = getProvider();
-    return new Program(idl, programID, provider);
-  }, []);
-
   return (
     <WalletContext.Provider
       value={useMemo(
@@ -87,10 +93,9 @@ export function WalletContextProvider({ children }) {
           connectWallet,
           currentAccount,
           walletAddress,
-          program,
           isConnected,
         }),
-        [connectWallet, currentAccount, walletAddress, program, isConnected]
+        [connectWallet, currentAccount, walletAddress, isConnected]
       )}
     >
       {children}

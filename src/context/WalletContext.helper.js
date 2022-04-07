@@ -1,6 +1,6 @@
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 import { Provider } from "@project-serum/anchor";
-import idl from "./idl.json";
+import idl from "../utils/idl.json";
 
 export { idl };
 // Get our program's id from the IDL file.

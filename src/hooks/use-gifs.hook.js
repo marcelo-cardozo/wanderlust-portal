@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
-import { baseAccount, useWalletContext } from "./WalletContext";
+import {
+  baseAccount,
+  gifProgram,
+  useWalletContext,
+} from "../context/WalletContext";
 
 export function useGifs() {
   const [gifs, setGifs] = useState([]);
-  const { isConnected, program } = useWalletContext();
+  const { isConnected } = useWalletContext();
 
   const getGifList = useCallback(async () => {
     try {
-      const account = await program.account.baseAccount.fetch(
+      const account = await gifProgram.account.baseAccount.fetch(
         baseAccount.publicKey
       );
 
@@ -20,11 +24,11 @@ export function useGifs() {
   }, []);
 
   useEffect(() => {
-    if (program && isConnected) {
+    if (baseAccount && isConnected) {
       console.log("Fetching GIF list...");
       getGifList();
     }
-  }, [program, isConnected]);
+  }, [isConnected]);
 
   return { gifs, setGifs, refetch: getGifList };
 }

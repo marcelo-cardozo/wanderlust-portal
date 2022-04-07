@@ -1,35 +1,51 @@
+import { useState } from "react";
+import { SystemProgram } from "@solana/web3.js";
+
 import twitterLogo from "./assets/twitter-logo.svg";
 import "./App.css";
-import { baseAccount, useWalletContext } from "./WalletContext";
-import { useState } from "react";
-import { useGifs } from "./use-gifs.hook";
-import { SystemProgram } from "@solana/web3.js";
+import {
+  baseAccount,
+  gifProgram,
+  useWalletContext,
+} from "./context/WalletContext";
+import { useGifs } from "./hooks/use-gifs.hook";
+import { useAddGif } from "./hooks/use-add-gif.hook";
 
 // Constants
 const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
-  const { connectWallet, isConnected, program } = useWalletContext();
+  const { connectWallet, isConnected } = useWalletContext();
   const { gifs, setGifs, refetch: refetchGifs } = useGifs();
+  const { mutate: mutateAddGif } = useAddGif();
   const [inputValue, setInputValue] = useState("");
 
-  const uploadItem = () => {
-    if (inputValue.length > 0) {
+  const uploadItem = async () => {
+    if (inputValue.length === 0) {
+      console.log("Empty input. Try again.");
+      return;
+    }
+    try {
       console.log("link:", inputValue);
+      await mutateAddGif(inputValue);
+      console.log("GIF successfully sent to program", inputValue);
+
       setGifs((prev) => [...prev, inputValue]);
       setInputValue("");
-    } else {
-      console.log("Empty input. Try again.");
+
+      await refetchGifs();
+    } catch (error) {
+      console.log("Error sending GIF:", error);
     }
   };
   const createGifAccount = async () => {
     try {
       console.log("ping");
-      await program.rpc.startStuffOff({
+      await gifProgram.rpc.startStuffOff({
         accounts: {
           baseAccount: baseAccount.publicKey,
-          user: program.provider.wallet.publicKey,
+          user: gifProgram.provider.wallet.publicKey,
           systemProgram: SystemProgram.programId,
         },
         signers: [baseAccount],
@@ -85,8 +101,8 @@ const App = () => {
                   </form>
                   <div className="gif-grid">
                     {gifs.map((gif) => (
-                      <div className="gif-item" key={gif}>
-                        <img src={gif} alt={gif} />
+                      <div className="gif-item" key={gif.gifLink}>
+                        <img src={gif.gifLink} alt={gif.gifLink} />
                       </div>
                     ))}
                   </div>
