@@ -1,37 +1,46 @@
 import twitterLogo from "./assets/twitter-logo.svg";
 import "./App.css";
-import { useWalletContext } from "./WalletContext";
-import { useEffect, useState } from "react";
+import { baseAccount, useWalletContext } from "./WalletContext";
+import { useState } from "react";
+import { useGifs } from "./use-gifs.hook";
+import { SystemProgram } from "@solana/web3.js";
 
 // Constants
 const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
-const GALLERY_ITEMS = [
-  "https://media0.giphy.com/media/r5E0uV2Facm2c/giphy.gif",
-  "https://media2.giphy.com/media/hmnWsVEXvaXZVUsE5W/giphy.gif",
-  "https://media1.giphy.com/media/Y4vip84hg9BhdNidTR/giphy.gif",
-  "https://media3.giphy.com/media/2csuIJj6TmuKA/giphy.gif",
-];
-
 const App = () => {
-  const { connectWallet, isConnected } = useWalletContext();
-  const [galleryItems, setGalleryItems] = useState([]);
+  const { connectWallet, isConnected, program } = useWalletContext();
+  const { gifs, setGifs, refetch: refetchGifs } = useGifs();
   const [inputValue, setInputValue] = useState("");
-
-  useEffect(() => {
-    if (isConnected) {
-      setGalleryItems(GALLERY_ITEMS);
-    }
-  }, [isConnected]);
 
   const uploadItem = () => {
     if (inputValue.length > 0) {
       console.log("link:", inputValue);
-      setGalleryItems((prev) => [...prev, inputValue]);
+      setGifs((prev) => [...prev, inputValue]);
       setInputValue("");
     } else {
       console.log("Empty input. Try again.");
+    }
+  };
+  const createGifAccount = async () => {
+    try {
+      console.log("ping");
+      await program.rpc.startStuffOff({
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: program.provider.wallet.publicKey,
+          systemProgram: SystemProgram.programId,
+        },
+        signers: [baseAccount],
+      });
+      console.log(
+        "Created a new BaseAccount w/ address:",
+        baseAccount.publicKey.toString()
+      );
+      await refetchGifs();
+    } catch (error) {
+      console.log("Error creating BaseAccount account:", error);
     }
   };
 
@@ -45,30 +54,44 @@ const App = () => {
           </p>
           {isConnected ? (
             <div className="connected-container">
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  uploadItem();
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="Enter gif link!"
-                  name="link"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                />
-                <button type="submit" className="cta-button submit-gif-button">
-                  Submit
+              {gifs === null ? (
+                <button
+                  className="cta-button submit-gif-button"
+                  onClick={createGifAccount}
+                >
+                  Do One-Time Initialization For GIF Program Account
                 </button>
-              </form>
-              <div className="gif-grid">
-                {galleryItems.map((gif) => (
-                  <div className="gif-item" key={gif}>
-                    <img src={gif} alt={gif} />
+              ) : (
+                <>
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      uploadItem();
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Enter gif link!"
+                      name="link"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                    />
+                    <button
+                      type="submit"
+                      className="cta-button submit-gif-button"
+                    >
+                      Submit
+                    </button>
+                  </form>
+                  <div className="gif-grid">
+                    {gifs.map((gif) => (
+                      <div className="gif-item" key={gif}>
+                        <img src={gif} alt={gif} />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           ) : (
             <button

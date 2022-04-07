@@ -6,13 +6,20 @@ import {
   useEffect,
   useCallback,
 } from "react";
+import { getProvider, idl, programID } from "./WalletContext.helper";
+import { Program, web3 } from "@project-serum/anchor";
+const { Keypair } = web3;
 
 const WalletContext = createContext({
   currentAccount: undefined,
   connectWallet: undefined,
-  walletAddress: undefined,
   isConnected: false,
+  program: undefined,
+  walletAddress: undefined,
 });
+
+// Create a keypair for the account that will hold the GIF data.
+export const baseAccount = Keypair.generate();
 
 export function WalletContextProvider({ children }) {
   const [currentAccount, setCurrentAccount] = useState();
@@ -68,11 +75,22 @@ export function WalletContextProvider({ children }) {
     return () => window.removeEventListener("load", checkIfWalletIsConnected);
   }, []);
 
+  const program = useMemo(() => {
+    const provider = getProvider();
+    return new Program(idl, programID, provider);
+  }, []);
+
   return (
     <WalletContext.Provider
       value={useMemo(
-        () => ({ connectWallet, currentAccount, walletAddress, isConnected }),
-        [connectWallet, currentAccount, walletAddress, isConnected]
+        () => ({
+          connectWallet,
+          currentAccount,
+          walletAddress,
+          program,
+          isConnected,
+        }),
+        [connectWallet, currentAccount, walletAddress, program, isConnected]
       )}
     >
       {children}
