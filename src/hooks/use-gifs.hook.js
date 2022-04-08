@@ -6,14 +6,18 @@ import {
 } from "../context/WalletContext";
 
 export function useGifs() {
+  const [isLoading, setIsLoading] = useState(false);
   const [gifs, setGifs] = useState([]);
   const { isConnected } = useWalletContext();
 
   const getGifList = useCallback(async () => {
     try {
+      setIsLoading(true);
       const account = await gifProgram.account.baseAccount.fetch(
         baseAccount.publicKey
       );
+
+      setIsLoading(false);
 
       console.log("Got the account", account);
       setGifs(account.gifs);
@@ -30,5 +34,5 @@ export function useGifs() {
     }
   }, [isConnected]);
 
-  return { gifs, setGifs, refetch: getGifList };
+  return { gifs, setGifs, refetch: getGifList, isLoading };
 }

@@ -17,7 +17,12 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
   const { connectWallet, isConnected } = useWalletContext();
-  const { gifs, setGifs, refetch: refetchGifs } = useGifs();
+  const {
+    gifs,
+    setGifs,
+    refetch: refetchGifs,
+    isLoading: isLoadingGifs,
+  } = useGifs();
   const { mutate: mutateAddGif } = useAddGif();
   const [inputValue, setInputValue] = useState("");
 
@@ -62,7 +67,11 @@ const App = () => {
 
   return (
     <div className="App">
-      <div className={isConnected ? "authed-container" : "container"}>
+      <div
+        className={`container ${
+          isConnected ? "authed-container" : "unauthed-container"
+        }`}
+      >
         <div className="header-container">
           <p className="header">🖼 Wanderlust Portal</p>
           <p className="sub-text">
@@ -100,11 +109,11 @@ const App = () => {
                     </button>
                   </form>
                   <div className="gif-grid">
-                    {gifs.map((gif) => (
-                      <div className="gif-item" key={gif.gifLink}>
-                        <img src={gif.gifLink} alt={gif.gifLink} />
-                      </div>
-                    ))}
+                    {isLoadingGifs
+                      ? new Array(6)
+                          .fill(0)
+                          .map(() => <GalleryItemPlaceholder />)
+                      : gifs.map((gif) => <GalleryItem item={gif} />)}
                   </div>
                 </>
               )}
@@ -131,5 +140,18 @@ const App = () => {
     </div>
   );
 };
+
+function GalleryItemPlaceholder() {
+  return <div className="gif-item-placeholder" />;
+}
+
+function GalleryItem({ item }) {
+  return (
+    <div className="gif-item" key={item.gifLink}>
+      <img src={item.gifLink} alt={item.gifLink} />
+      <div className="author">{item.userAddress.toString()}</div>
+    </div>
+  );
+}
 
 export default App;
