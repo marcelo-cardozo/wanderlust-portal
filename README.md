@@ -4,6 +4,8 @@
 
 This project allows you to submit GIF Links and store them in the Solana Blockchain, it uses Anchor to handle the deployment of the program to the Blockchain.
 
+*Note:* the program runs in the devnet on the Solana Blockchain, to play with the app a solana wallet like [Phantom](https://phantom.app/) is needed, to get some tokens you might use [https://solfaucet.com/](https://solfaucet.com/)
+
 ## Test Program
 
 - `solana config set --url devnet` : Specify which network will be used
