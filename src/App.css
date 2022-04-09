@@ -11,11 +11,6 @@ body,
   text-align: center;
 }
 
-.container {
-  max-width: 1100px;
-  margin: auto;
-}
-
 .unauthed-container {
   height: 100%;
   display: flex;
@@ -39,6 +34,15 @@ body,
 .header-container {
   padding: 30px;
   padding-bottom: 80px;
+}
+
+.authed-header-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.unauthed-header-container {
+  margin-top: auto;
 }
 
 .sub-text {
@@ -83,10 +87,8 @@ body,
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
   width: 100%;
-  bottom: 0;
-  left: 0;
+  margin-top: auto;
   padding-bottom: 12px;
 }
 
@@ -145,6 +147,10 @@ body,
   backdrop-filter: blur(10px);
   overflow-wrap: anywhere;
   word-break: normal;
+}
+.connected-container {
+  max-width: 1100px;
+  margin: auto;
 }
 
 .connected-container input[type="text"] {

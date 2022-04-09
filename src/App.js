@@ -67,12 +67,14 @@ const App = () => {
 
   return (
     <div className="App">
-      <div
-        className={`container ${
-          isConnected ? "authed-container" : "unauthed-container"
-        }`}
-      >
-        <div className="header-container">
+      <div className={isConnected ? "authed-container" : "unauthed-container"}>
+        <div
+          className={`header-container ${
+            isConnected
+              ? "authed-header-container"
+              : "unauthed-header-container"
+          }`}
+        >
           <p className="header">🖼 Wanderlust Portal</p>
           <p className="sub-text">
             View your Wanderlust collection in the metaverse ✨
